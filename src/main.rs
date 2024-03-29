@@ -22,7 +22,7 @@ struct Settings {
 }
 
 fn default_bind_address() -> SocketAddr {
-    "0.0.0.0:3000".parse().unwrap()
+    "0.0.0.0:8080".parse().unwrap()
 }
 
 // State injected into route handlers
@@ -63,10 +63,19 @@ async fn main() -> eyre::Result<()> {
         .add_source(
             config::Environment::with_prefix("RESTARTER")
                 .try_parsing(true)
-                .list_separator(","),
+                .list_separator(",")
+                .with_list_parse_key("storage_class"),
         )
         .build()?;
     let settings: Settings = settings_builder.try_deserialize()?;
+
+    info!(
+        "Will be trying to delete pods that use PVCs with these storage classes: {:?}",
+        settings.storage_class
+    );
+    if settings.dry_run {
+        info!("Running in dry-run mode");
+    }
 
     let k8s_client = kube::Client::try_default().await?;
 
