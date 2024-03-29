@@ -14,6 +14,10 @@ RUN cargo build --target x86_64-unknown-linux-musl --release
 
 # Copy the statically-linked binary into a scratch container.
 FROM scratch
+LABEL org.opencontainers.image.authors="Vladimir Romashchenko <eaglesemanation@gmail.com>"
+LABEL org.opencontainers.image.source="https://github.com/eaglesemanation/k8s-csi-restarter"
+LABEL org.opencontainers.image.licenses="MIT"
+
 COPY --from=build /usr/src/target/x86_64-unknown-linux-musl/release/k8s-csi-restarter .
 USER 1000
 ENTRYPOINT ["./k8s-csi-restarter"]
